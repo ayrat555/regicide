@@ -1,0 +1,92 @@
+# Regicide (CLI)
+
+```text
+╔══════════════════════════════════╗
+║          R E G I C I D E         ║
+║     cooperative card battler     ║
+╚══════════════════════════════════╝
+```
+
+A terminal version of [Regicide](https://badgersfrommars.com/en-eu/pages/learn-to-play-regicide), the cooperative card game. Defeat the Jacks, Queens, and Kings with ASCII cards, suit powers, and save/continue support.
+
+## Requirements
+
+- [Rust](https://www.rust-lang.org/) (edition 2024 / recent toolchain)
+- A terminal that supports ANSI colors and Unicode box-drawing / suit symbols
+
+## Run
+
+```bash
+cargo run --release
+```
+
+Set `NO_COLOR=1` for plain (uncolored) output.
+
+## Play
+
+From the main menu:
+
+1. **New solo game** — 8-card hand, two side Jesters
+2. **New multiplayer** — hot-seat, 2–4 players
+3. **Continue saved game**
+4. **Rules** — in-game rulebook summary
+5. **Quit**
+
+### In-game commands
+
+| Command | Action |
+|---------|--------|
+| `play 3` or `3` | Play card(s) by number |
+| `play 1 4` | Animal companion pair, or a combo |
+| `yield` | Skip attack; take enemy damage |
+| `jester` | Solo: discard hand and refill (2 per game) |
+| `save` | Write the save file |
+| `quit` | Exit (prompts to save) |
+| `help` | Command help |
+
+When defending, enter card numbers or `auto` for a suggested discard.
+
+### Suit powers
+
+| Suit | Effect |
+|------|--------|
+| ♥ Hearts | Move cards from discard under the Tavern |
+| ♦ Diamonds | Draw cards |
+| ♣ Clubs | Double damage |
+| ♠ Spades | Shield (reduce enemy attack) |
+
+Enemies are immune to their own suit’s power unless a Jester cancels immunity.
+
+## Save / continue
+
+Progress autosaves after each turn. The default path is:
+
+```text
+~/.local/share/regicide/save.json
+```
+
+Choose **Continue saved game** from the main menu to resume.
+
+## Project layout
+
+```text
+src/
+  main.rs       # entry point
+  lib.rs        # crate root
+  card/         # suits, ranks, cards, ASCII rendering
+  game/         # rules engine (setup, play, defend, powers)
+  save.rs       # JSON persistence
+  ui/           # menus, board, play session
+```
+
+```bash
+cargo test
+```
+
+## Credits
+
+Regicide was designed by Paul Abrahams, Luke Badger, and Andy Richdale ([Badgers from Mars](https://badgersfrommars.com/)).
+
+Official rules: [Learn to Play](https://badgersfrommars.com/en-eu/pages/learn-to-play-regicide) · [PDF](https://www.regicidegame.com/site_files/33132/upload_files/RegicideRulesA4.pdf)
+
+This is an unofficial fan implementation for personal / educational use.
