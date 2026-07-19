@@ -50,7 +50,7 @@ Solo jesters: 2  used: 0
    1       2       3       4       5       6       7       8   
 ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
   ♥ heal  ♦ draw  ♣ double  ♠ shield
-  Commands: play <n…> | yield | jester | save | help
+  Commands: play (p) <n…> | yield (y) | jester (j) | rules (r) | save (s) | menu (m) | quit (q) | help (h)
 ```
 
 ## Play
@@ -67,13 +67,15 @@ From the main menu:
 
 | Command | Action |
 |---------|--------|
-| `play 3` or `3` | Play card(s) by number |
+| `play` / `p` / `3` | Play card(s) by number |
 | `play 1 4` | Animal companion pair, or a combo |
-| `yield` | Skip attack; take enemy damage |
-| `jester` | Solo: discard hand and refill (2 per game) |
-| `save` | Write the save file |
-| `quit` | Exit (prompts to save) |
-| `help` | Command help |
+| `yield` / `y` | Skip attack; take enemy damage |
+| `jester` / `j` | Solo: discard hand and refill (2 per game) |
+| `rules` / `r` | Full rulebook summary |
+| `save` / `s` | Write the save file |
+| `menu` / `m` | Return to the main menu (prompts to save) |
+| `quit` / `q` | Quit the game (prompts to save) |
+| `help` / `h` | Command help |
 
 When defending, enter card numbers or `auto` for a suggested discard.
 
