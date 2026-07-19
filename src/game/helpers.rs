@@ -3,10 +3,10 @@ use crate::card::{Card, Suit};
 pub(super) fn unique_suits(cards: &[Card]) -> Vec<Suit> {
     let mut out = Vec::new();
     for c in cards {
-        if let Some(s) = c.suit {
-            if !out.contains(&s) {
-                out.push(s);
-            }
+        if let Some(s) = c.suit
+            && !out.contains(&s)
+        {
+            out.push(s);
         }
     }
     out

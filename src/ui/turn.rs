@@ -6,12 +6,12 @@ use anyhow::{bail, Result};
 use colored::Colorize;
 use rand::rngs::StdRng;
 use std::io::{self, Write};
-use std::path::PathBuf;
+use std::path::Path;
 
 pub(super) fn finish_turn(
     game: &mut Game,
     report: TurnReport,
-    save_path: &PathBuf,
+    save_path: &Path,
     rng: &mut StdRng,
     next_after_jester: Option<usize>,
 ) -> Result<()> {

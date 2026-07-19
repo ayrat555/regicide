@@ -9,7 +9,7 @@ use colored::Colorize;
 use rand::rngs::StdRng;
 use rand::SeedableRng;
 use std::io::{self, Write};
-use std::path::PathBuf;
+use std::path::Path;
 
 /// How a play session ended — win/loss/menu return vs leaving the app.
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -18,7 +18,7 @@ pub enum SessionEnd {
     QuitApp,
 }
 
-pub fn play_loop(mut game: Game, save_path: &PathBuf) -> Result<SessionEnd> {
+pub fn play_loop(mut game: Game, save_path: &Path) -> Result<SessionEnd> {
     let mut rng = StdRng::from_os_rng();
 
     loop {
@@ -178,7 +178,7 @@ pub fn play_loop(mut game: Game, save_path: &PathBuf) -> Result<SessionEnd> {
 }
 
 /// Prompt to save; returns true if the player confirmed leaving (after optional save).
-fn confirm_save(game: &Game, save_path: &PathBuf, action: &str) -> Result<bool> {
+fn confirm_save(game: &Game, save_path: &Path, action: &str) -> Result<bool> {
     print!("Save before {action}? [Y/n/c]: ");
     io::stdout().flush()?;
     let ans = read_line()?.trim().to_lowercase();
@@ -199,7 +199,7 @@ fn confirm_save(game: &Game, save_path: &PathBuf, action: &str) -> Result<bool> 
 fn handle_play(
     game: &mut Game,
     indices: &[usize],
-    save_path: &PathBuf,
+    save_path: &Path,
     rng: &mut StdRng,
 ) -> Result<()> {
     match game.play_cards(indices, rng) {

@@ -8,7 +8,7 @@ use colored::Colorize;
 use rand::rngs::StdRng;
 use rand::SeedableRng;
 use std::io::{self, Write};
-use std::path::PathBuf;
+use std::path::Path;
 
 pub fn run() -> Result<()> {
     let save_path = save::default_save_path();
@@ -99,7 +99,7 @@ pub fn run() -> Result<()> {
 }
 
 /// Runs a play session. Returns `true` if the app should exit.
-fn start_session(game: Game, save_path: &PathBuf) -> Result<bool> {
+fn start_session(game: Game, save_path: &Path) -> Result<bool> {
     if play_loop(game, save_path)? == SessionEnd::QuitApp {
         println!("Farewell, regicide.");
         Ok(true)
