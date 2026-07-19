@@ -3,3 +3,4 @@
 pub mod card;
 pub mod game;
 pub mod save;
+pub mod ui;
