@@ -2,16 +2,16 @@ pub fn print_help_full() {
     println!(
         r#"
 COMMANDS
-  play 1        Play card #1
-  play 1 3      Play animal companion + card, or a combo
-  1 3           Shorthand for play
-  yield         Skip attack; take enemy damage
-  jester        Solo only: discard hand & refill (2 per game)
-  save          Write save file
-  quit          Exit (prompts to save)
-  help          This text
-
-Type `rules` from the main menu for the full rulebook summary.
+  play (p) 1        Play card #1
+  play (p) 1 3      Play animal companion + card, or a combo
+  1 3               Shorthand for play
+  yield (y)         Skip attack; take enemy damage
+  jester (j)        Solo only: discard hand & refill (2 per game)
+  rules (r)         Full rulebook summary
+  save (s)          Write save file
+  menu (m)          Return to the main menu (prompts to save)
+  quit (q)          Quit the game (prompts to save)
+  help (h)          This text
 "#
     );
     print_rules_short();

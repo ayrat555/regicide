@@ -123,17 +123,20 @@ pub fn print_help_brief(game: &Game) {
     );
     let mut extras = Vec::new();
     if game.can_yield() {
-        extras.push("yield".yellow().to_string());
+        extras.push("yield (y)".yellow().to_string());
     }
     if game.can_use_solo_jester() {
-        extras.push("jester".bright_yellow().to_string());
+        extras.push("jester (j)".bright_yellow().to_string());
     }
-    extras.push("save".cyan().to_string());
-    extras.push("help".bright_black().to_string());
+    extras.push("rules (r)".bright_black().to_string());
+    extras.push("save (s)".cyan().to_string());
+    extras.push("menu (m)".bright_black().to_string());
+    extras.push("quit (q)".bright_black().to_string());
+    extras.push("help (h)".bright_black().to_string());
     println!(
         "  {} {} {}",
         "Commands:".bright_black(),
-        "play <n…>".green(),
+        "play (p) <n…>".green(),
         format!("| {}", extras.join(" | ")).bright_black()
     );
 }

@@ -1,6 +1,6 @@
 use super::input::{pause, read_line};
 use super::rules::print_rules;
-use super::session::play_loop;
+use super::session::{play_loop, SessionEnd};
 use crate::game::Game;
 use crate::save;
 use anyhow::Result;
@@ -8,6 +8,7 @@ use colored::Colorize;
 use rand::rngs::StdRng;
 use rand::SeedableRng;
 use std::io::{self, Write};
+use std::path::PathBuf;
 
 pub fn run() -> Result<()> {
     let save_path = save::default_save_path();
@@ -46,8 +47,8 @@ pub fn run() -> Result<()> {
                 "(none)".bright_black()
             );
         }
-        println!("  {} Rules", "4)".cyan().bold());
-        println!("  {} Quit", "5)".cyan().bold());
+        println!("  {} Rules {}", "4)".cyan().bold(), "(r)".bright_black());
+        println!("  {} Quit {}", "5)".cyan().bold(), "(q)".bright_black());
         print!("\n{} ", ">".bright_yellow().bold());
         io::stdout().flush()?;
 
@@ -55,7 +56,9 @@ pub fn run() -> Result<()> {
             "1" => {
                 let mut rng = StdRng::from_os_rng();
                 let game = Game::new(1, &mut rng)?;
-                play_loop(game, &save_path)?;
+                if start_session(game, &save_path)? {
+                    return Ok(());
+                }
             }
             "2" => {
                 print!("Players (2–4): ");
@@ -67,7 +70,9 @@ pub fn run() -> Result<()> {
                 }
                 let mut rng = StdRng::from_os_rng();
                 let game = Game::new(n, &mut rng)?;
-                play_loop(game, &save_path)?;
+                if start_session(game, &save_path)? {
+                    return Ok(());
+                }
             }
             "3" => {
                 if !save::save_exists(&save_path) {
@@ -76,7 +81,9 @@ pub fn run() -> Result<()> {
                 }
                 let game = save::load_game(&save_path)?;
                 println!("Loaded saved game.\n");
-                play_loop(game, &save_path)?;
+                if start_session(game, &save_path)? {
+                    return Ok(());
+                }
             }
             "4" | "r" | "rules" => {
                 print_rules();
@@ -88,5 +95,15 @@ pub fn run() -> Result<()> {
             }
             _ => println!("Unknown option.\n"),
         }
+    }
+}
+
+/// Runs a play session. Returns `true` if the app should exit.
+fn start_session(game: Game, save_path: &PathBuf) -> Result<bool> {
+    if play_loop(game, save_path)? == SessionEnd::QuitApp {
+        println!("Farewell, regicide.");
+        Ok(true)
+    } else {
+        Ok(false)
     }
 }

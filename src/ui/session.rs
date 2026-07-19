@@ -1,6 +1,6 @@
 use super::board::{print_board, print_help_brief};
-use super::input::{parse_indices, read_line};
-use super::rules::print_help_full;
+use super::input::{parse_indices, pause, read_line};
+use super::rules::{print_help_full, print_rules};
 use super::turn::{ask_next_player, finish_turn};
 use crate::game::{Game, GameStatus, LossReason};
 use crate::save;
@@ -11,9 +11,14 @@ use rand::SeedableRng;
 use std::io::{self, Write};
 use std::path::PathBuf;
 
-use super::input::pause;
+/// How a play session ended — win/loss/menu return vs leaving the app.
+#[derive(Debug, Clone, Copy, PartialEq, Eq)]
+pub enum SessionEnd {
+    ToMenu,
+    QuitApp,
+}
 
-pub fn play_loop(mut game: Game, save_path: &PathBuf) -> Result<()> {
+pub fn play_loop(mut game: Game, save_path: &PathBuf) -> Result<SessionEnd> {
     let mut rng = StdRng::from_os_rng();
 
     loop {
@@ -42,7 +47,7 @@ pub fn play_loop(mut game: Game, save_path: &PathBuf) -> Result<()> {
                 }
                 let _ = std::fs::remove_file(save_path);
                 pause()?;
-                return Ok(());
+                return Ok(SessionEnd::ToMenu);
             }
             GameStatus::Lost { reason } => {
                 print_board(&game);
@@ -71,7 +76,7 @@ pub fn play_loop(mut game: Game, save_path: &PathBuf) -> Result<()> {
                 }
                 let _ = std::fs::remove_file(save_path);
                 pause()?;
-                return Ok(());
+                return Ok(SessionEnd::ToMenu);
             }
             GameStatus::Playing => {}
         }
@@ -95,19 +100,23 @@ pub fn play_loop(mut game: Game, save_path: &PathBuf) -> Result<()> {
             "h" | "help" | "?" => {
                 print_help_full();
             }
+            "r" | "rules" => {
+                print_rules();
+                pause()?;
+            }
             "s" | "save" => {
                 save::save_game(&game, save_path)?;
                 println!("Saved to {}.", save_path.display());
             }
-            "q" | "quit" | "exit" => {
-                print!("Save before quitting? [Y/n]: ");
-                io::stdout().flush()?;
-                let ans = read_line()?.trim().to_lowercase();
-                if ans.is_empty() || ans == "y" || ans == "yes" {
-                    save::save_game(&game, save_path)?;
-                    println!("Saved to {}.", save_path.display());
+            "m" | "menu" | "main" => {
+                if confirm_save(&game, save_path, "returning to the main menu")? {
+                    return Ok(SessionEnd::ToMenu);
                 }
-                return Ok(());
+            }
+            "q" | "quit" | "exit" => {
+                if confirm_save(&game, save_path, "quitting")? {
+                    return Ok(SessionEnd::QuitApp);
+                }
             }
             "j" | "jester" | "solo" => {
                 if !game.can_use_solo_jester() {
@@ -150,6 +159,25 @@ pub fn play_loop(mut game: Game, save_path: &PathBuf) -> Result<()> {
             _ => {
                 println!("Unknown command. Type `help` for commands.");
             }
+        }
+    }
+}
+
+/// Prompt to save; returns true if the player confirmed leaving (after optional save).
+fn confirm_save(game: &Game, save_path: &PathBuf, action: &str) -> Result<bool> {
+    print!("Save before {action}? [Y/n/c]: ");
+    io::stdout().flush()?;
+    let ans = read_line()?.trim().to_lowercase();
+    match ans.as_str() {
+        "c" | "cancel" => {
+            println!("Cancelled.");
+            Ok(false)
+        }
+        "n" | "no" => Ok(true),
+        _ => {
+            save::save_game(game, save_path)?;
+            println!("Saved to {}.", save_path.display());
+            Ok(true)
         }
     }
 }
