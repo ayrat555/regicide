@@ -97,7 +97,7 @@ mod tests {
         let mut chars = s.chars().peekable();
         while let Some(c) = chars.next() {
             if c == '\u{1b}' {
-                while let Some(c2) = chars.next() {
+                for c2 in chars.by_ref() {
                     if c2.is_ascii_alphabetic() {
                         break;
                     }
