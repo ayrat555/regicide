@@ -63,12 +63,16 @@ pub(super) fn finish_turn(
             match resolve_defend(game) {
                 Ok(()) => break,
                 Err(e) => {
-                    println!("  {e}");
                     if matches!(game.status, GameStatus::Lost { .. }) {
+                        println!("  {} {e}", "✗".bright_red().bold());
                         save::save_game(game, save_path)?;
                         pause()?;
                         return Ok(());
                     }
+                    println!(
+                        "  {} Invalid defend: {e}",
+                        "✗".bright_red().bold()
+                    );
                     println!("  Try again.");
                 }
             }

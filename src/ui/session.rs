@@ -120,7 +120,10 @@ pub fn play_loop(mut game: Game, save_path: &PathBuf) -> Result<SessionEnd> {
             }
             "j" | "jester" | "solo" => {
                 if !game.can_use_solo_jester() {
-                    println!("No solo jesters available.");
+                    println!(
+                        "  {} Invalid play: no solo jesters available.",
+                        "✗".bright_red().bold()
+                    );
                     continue;
                 }
                 match game.use_solo_jester(&mut rng) {
@@ -130,12 +133,15 @@ pub fn play_loop(mut game: Game, save_path: &PathBuf) -> Result<SessionEnd> {
                         }
                         save::save_game(&game, save_path)?;
                     }
-                    Err(e) => println!("  {e}"),
+                    Err(e) => print_invalid_step(&e),
                 }
             }
             "y" | "yield" => {
                 if !game.can_yield() {
-                    println!("You cannot yield right now (consecutive yield limit).");
+                    println!(
+                        "  {} Invalid play: you cannot yield right now (consecutive yield limit).",
+                        "✗".bright_red().bold()
+                    );
                     continue;
                 }
                 let report = game.yield_turn()?;
@@ -146,18 +152,26 @@ pub fn play_loop(mut game: Game, save_path: &PathBuf) -> Result<SessionEnd> {
                 let indices = if rest.is_empty() {
                     print!("Card numbers (e.g. 1  or  1 3  or  2 5): ");
                     io::stdout().flush()?;
-                    parse_indices(&read_line()?)?
+                    parse_indices(&read_line()?)
                 } else {
-                    parse_indices(&rest)?
+                    parse_indices(&rest)
                 };
-                handle_play(&mut game, &indices, save_path, &mut rng)?;
+                match indices {
+                    Ok(indices) => handle_play(&mut game, &indices, save_path, &mut rng)?,
+                    Err(e) => print_invalid_step(&e),
+                }
             }
             other if other.chars().next().is_some_and(|c| c.is_ascii_digit()) => {
-                let indices = parse_indices(&cmd)?;
-                handle_play(&mut game, &indices, save_path, &mut rng)?;
+                match parse_indices(&cmd) {
+                    Ok(indices) => handle_play(&mut game, &indices, save_path, &mut rng)?,
+                    Err(e) => print_invalid_step(&e),
+                }
             }
             _ => {
-                println!("Unknown command. Type `help` for commands.");
+                println!(
+                    "  {} Unknown command. Type `help` for commands.",
+                    "✗".bright_red().bold()
+                );
             }
         }
     }
@@ -197,9 +211,14 @@ fn handle_play(
             };
             finish_turn(game, report, save_path, rng, next_choice)?;
         }
-        Err(e) => {
-            println!("  Cannot play: {e}");
-        }
+        Err(e) => print_invalid_step(&e),
     }
     Ok(())
+}
+
+fn print_invalid_step(err: &anyhow::Error) {
+    println!(
+        "  {} Invalid play: {err}",
+        "✗".bright_red().bold()
+    );
 }
