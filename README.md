@@ -22,14 +22,45 @@ cargo run --release
 
 Set `NO_COLOR=1` for plain (uncolored) output.
 
+## Example
+
+Mid-game solo board (colors omitted):
+
+```text
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+Turn 3  │  Tavern 28  │  Discard 2  │  Castle 10
+Solo jesters: 2  used: 0
+
+  ENEMY
+┌─────┐
+│J    │
+│  ♠  │
+│    J│
+└─────┘
+  ATK 5 (base 10 - shield 5)  HP ████████░░░░ 13/20
+  Immunity: ♠ Spades
+  Played: 5♠ 2♥
+
+  YOUR HAND
+┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐ ┌─────┐
+│A    │ │5    │ │7    │ │10   │ │3    │ │9    │ │2    │ │4    │
+│  ♠  │ │  ♥  │ │  ♣  │ │  ♦  │ │  ♠  │ │  ♥  │ │  ♣  │ │  ♦  │
+│    A│ │    5│ │    7│ │   10│ │    3│ │    9│ │    2│ │    4│
+└─────┘ └─────┘ └─────┘ └─────┘ └─────┘ └─────┘ └─────┘ └─────┘
+   1       2       3       4       5       6       7       8   
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+  ♥ heal  ♦ draw  ♣ double  ♠ shield
+  Commands: play <n…> | yield | jester | save | help
+```
+
 ## Play
 
 From the main menu:
 
-1. **New solo game** — 8-card hand, two side Jesters
-2. **New multiplayer** — hot-seat, 2–4 players
+1. **New solo game** - 8-card hand, two side Jesters
+2. **New multiplayer** - hot-seat, 2-4 players
 3. **Continue saved game**
-4. **Rules** — in-game rulebook summary
+4. **Rules** - in-game rulebook summary
 5. **Quit**
 
 ### In-game commands
