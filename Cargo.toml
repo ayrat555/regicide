@@ -1,6 +1,6 @@
 [package]
 name = "regicide"
-version = "0.2.0"
+version = "0.2.1"
 edition = "2024"
 description = "Terminal CLI version of the Regicide cooperative card game"
 license = "MIT"
