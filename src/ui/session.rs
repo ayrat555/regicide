@@ -1,11 +1,12 @@
 use super::board::{print_board, print_help_brief};
+use super::fmt::{self, blank, print_event_lines, thin_rule};
 use super::input::{parse_indices, pause, read_line};
 use super::rules::{print_help_full, print_rules};
 use super::turn::{ask_next_player, finish_turn};
 use crate::game::{Game, GameStatus, LossReason};
 use crate::save;
 use anyhow::Result;
-use colored::Colorize;
+use colored::{Color, Colorize};
 use rand::rngs::StdRng;
 use rand::SeedableRng;
 use std::io::{self, Write};
@@ -25,56 +26,48 @@ pub fn play_loop(mut game: Game, save_path: &Path) -> Result<SessionEnd> {
         match game.status {
             GameStatus::Won { jesters_used } => {
                 print_board(&game);
-                println!("{}", "╔══════════════════════════════════╗".bright_green());
-                println!(
-                    "{}{}{}",
-                    "║".bright_green(),
-                    "            VICTORY!              ".bold().bright_green(),
-                    "║".bright_green()
-                );
-                println!("{}", "╚══════════════════════════════════╝".bright_green());
+                fmt::banner("VICTORY!", None, Color::BrightGreen, Color::BrightGreen);
                 if game.is_solo() {
+                    blank();
                     let medal = match jesters_used {
                         0 => "Gold".bright_yellow().bold().to_string(),
                         1 => "Silver".bright_white().bold().to_string(),
                         _ => "Bronze".truecolor(205, 127, 50).bold().to_string(),
                     };
                     println!(
-                        "Solo medal: {medal} {} {}",
+                        "  Solo medal: {medal} {} {}",
                         "(jesters used:".bright_black(),
                         format!("{jesters_used})").bright_black()
                     );
                 }
+                blank();
                 let _ = std::fs::remove_file(save_path);
+                thin_rule();
                 pause()?;
                 return Ok(SessionEnd::ToMenu);
             }
             GameStatus::Lost { reason } => {
                 print_board(&game);
-                println!("{}", "╔══════════════════════════════════╗".bright_red());
-                println!(
-                    "{}{}{}",
-                    "║".bright_red(),
-                    "             DEFEAT               ".bold().bright_red(),
-                    "║".bright_red()
-                );
-                println!("{}", "╚══════════════════════════════════╝".bright_red());
+                fmt::banner("DEFEAT", None, Color::BrightRed, Color::BrightRed);
+                blank();
                 match reason {
                     LossReason::CannotDefend => {
                         println!(
-                            "{}",
+                            "  {}",
                             "A player could not discard enough to survive the attack."
                                 .bright_red()
                         )
                     }
                     LossReason::CannotAct => {
                         println!(
-                            "{}",
+                            "  {}",
                             "A player could not play a card or yield.".bright_red()
                         )
                     }
                 }
+                blank();
                 let _ = std::fs::remove_file(save_path);
+                thin_rule();
                 pause()?;
                 return Ok(SessionEnd::ToMenu);
             }
@@ -83,6 +76,7 @@ pub fn play_loop(mut game: Game, save_path: &Path) -> Result<SessionEnd> {
 
         print_board(&game);
         print_help_brief(&game);
+        blank();
 
         print!(
             "{} {} ",
@@ -102,11 +96,14 @@ pub fn play_loop(mut game: Game, save_path: &Path) -> Result<SessionEnd> {
             }
             "r" | "rules" => {
                 print_rules();
+                thin_rule();
                 pause()?;
             }
             "s" | "save" => {
                 save::save_game(&game, save_path)?;
-                println!("Saved to {}.", save_path.display());
+                blank();
+                println!("  Saved to {}.", save_path.display());
+                blank();
             }
             "m" | "menu" | "main" => {
                 if confirm_save(&game, save_path, "returning to the main menu")? {
@@ -128,9 +125,7 @@ pub fn play_loop(mut game: Game, save_path: &Path) -> Result<SessionEnd> {
                 }
                 match game.use_solo_jester(&mut rng) {
                     Ok(msgs) => {
-                        for m in msgs {
-                            println!("  {m}");
-                        }
+                        print_event_lines(msgs);
                         save::save_game(&game, save_path)?;
                     }
                     Err(e) => print_invalid_step(&e),
@@ -150,7 +145,7 @@ pub fn play_loop(mut game: Game, save_path: &Path) -> Result<SessionEnd> {
             "p" | "play" => {
                 let rest: String = parts.collect::<Vec<_>>().join(" ");
                 let indices = if rest.is_empty() {
-                    print!("Card numbers (e.g. 1  or  1 3  or  2 5): ");
+                    print!("  Card numbers (e.g. 1  or  1 3  or  2 5): ");
                     io::stdout().flush()?;
                     parse_indices(&read_line()?)
                 } else {
@@ -179,18 +174,21 @@ pub fn play_loop(mut game: Game, save_path: &Path) -> Result<SessionEnd> {
 
 /// Prompt to save; returns true if the player confirmed leaving (after optional save).
 fn confirm_save(game: &Game, save_path: &Path, action: &str) -> Result<bool> {
-    print!("Save before {action}? [Y/n/c]: ");
+    blank();
+    print!("  Save before {action}? [Y/n/c]: ");
     io::stdout().flush()?;
     let ans = read_line()?.trim().to_lowercase();
     match ans.as_str() {
         "c" | "cancel" => {
-            println!("Cancelled.");
+            println!("  Cancelled.");
+            blank();
             Ok(false)
         }
         "n" | "no" => Ok(true),
         _ => {
             save::save_game(game, save_path)?;
-            println!("Saved to {}.", save_path.display());
+            println!("  Saved to {}.", save_path.display());
+            blank();
             Ok(true)
         }
     }

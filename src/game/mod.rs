@@ -40,4 +40,21 @@ mod tests {
         assert!(g.validate_play(&[0, 1, 2]).is_ok());
         assert!(g.validate_play(&[0, 3]).is_err());
     }
+
+    #[test]
+    fn solo_jester_refills_to_max_hand_only() {
+        let mut rng = StdRng::seed_from_u64(3);
+        let mut g = Game::new(1, &mut rng).unwrap();
+        let tavern_before = g.tavern.len();
+        let hand_before = g.players[0].hand.len();
+        assert_eq!(hand_before, g.max_hand_size);
+
+        g.use_solo_jester(&mut rng).unwrap();
+
+        assert_eq!(g.players[0].hand.len(), g.max_hand_size);
+        assert_eq!(g.tavern.len(), tavern_before.saturating_sub(g.max_hand_size));
+        assert_eq!(g.discard.len(), hand_before);
+        assert_eq!(g.solo_jesters_remaining, 1);
+        assert_eq!(g.solo_jesters_used, 1);
+    }
 }

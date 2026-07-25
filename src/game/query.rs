@@ -80,7 +80,7 @@ impl Game {
         }
 
         let mut drawn = Vec::new();
-        while self.current().hand.len() < self.max_hand_size {
+        while drawn.len() < self.max_hand_size {
             if self.tavern.is_empty() {
                 break;
             }
