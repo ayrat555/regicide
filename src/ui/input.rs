@@ -9,7 +9,9 @@ pub fn read_line() -> Result<String> {
 }
 
 pub fn pause() -> Result<()> {
-    print!("\n{} ", "[Enter]".bright_black());
+    // Callers draw thin_rule() before pause when a separator is wanted.
+    println!();
+    print!("{} ", "[Enter]".bright_black());
     io::stdout().flush()?;
     let _ = read_line()?;
     Ok(())

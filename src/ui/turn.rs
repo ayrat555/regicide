@@ -1,3 +1,4 @@
+use super::fmt::{blank, print_event_lines, thin_rule};
 use super::input::{parse_indices, pause, read_line};
 use crate::card::render_hand;
 use crate::game::{Game, GameStatus, TurnReport};
@@ -15,18 +16,18 @@ pub(super) fn finish_turn(
     rng: &mut StdRng,
     next_after_jester: Option<usize>,
 ) -> Result<()> {
-    for m in &report.messages {
-        println!("  {} {m}", "▸".bright_yellow());
-    }
+    print_event_lines(&report.messages);
 
     if matches!(game.status, GameStatus::Won { .. } | GameStatus::Lost { .. }) {
         save::save_game(game, save_path)?;
+        thin_rule();
         pause()?;
         return Ok(());
     }
 
     if report.defeated_enemy {
         save::save_game(game, save_path)?;
+        thin_rule();
         pause()?;
         return Ok(());
     }
@@ -35,26 +36,24 @@ pub(super) fn finish_turn(
         let next = next_after_jester.unwrap_or(game.current_player);
         game.advance_to(next);
         save::save_game(game, save_path)?;
+        thin_rule();
         pause()?;
         return Ok(());
     }
 
     if report.need_defend {
         if game.can_use_solo_jester() {
+            blank();
             print!(
-                "Defend against {} damage. Use solo jester first? [y/N]: ",
+                "  Defend against {} damage. Use solo jester first? [y/N]: ",
                 report.damage_to_defend
             );
             io::stdout().flush()?;
             let ans = read_line()?.trim().to_lowercase();
             if ans == "y" || ans == "yes" {
                 match game.use_solo_jester(rng) {
-                    Ok(msgs) => {
-                        for m in msgs {
-                            println!("  {m}");
-                        }
-                    }
-                    Err(e) => println!("  {e}"),
+                    Ok(msgs) => print_event_lines(msgs),
+                    Err(e) => println!("  {} {e}", "✗".bright_red().bold()),
                 }
             }
         }
@@ -66,6 +65,7 @@ pub(super) fn finish_turn(
                     if matches!(game.status, GameStatus::Lost { .. }) {
                         println!("  {} {e}", "✗".bright_red().bold());
                         save::save_game(game, save_path)?;
+                        thin_rule();
                         pause()?;
                         return Ok(());
                     }
@@ -74,6 +74,7 @@ pub(super) fn finish_turn(
                         "✗".bright_red().bold()
                     );
                     println!("  Try again.");
+                    blank();
                 }
             }
         }
@@ -82,13 +83,14 @@ pub(super) fn finish_turn(
     }
 
     save::save_game(game, save_path)?;
+    thin_rule();
     pause()?;
     Ok(())
 }
 
 fn resolve_defend(game: &mut Game) -> Result<()> {
     if game.enemy_attack_current() == 0 {
-        println!("  No damage to defend.");
+        print_event_lines(["No damage to defend."]);
         return Ok(());
     }
 
@@ -102,11 +104,12 @@ fn resolve_defend(game: &mut Game) -> Result<()> {
         );
     }
 
-    println!();
+    blank();
     println!(
         "  {} must discard cards totaling at least {needed}.",
         game.current().name
     );
+    blank();
     println!("{}", render_hand(&game.current().hand));
     if let Some(sug) = game.suggest_defend() {
         let labels: Vec<String> = sug.iter().map(|i| (i + 1).to_string()).collect();
@@ -124,9 +127,7 @@ fn resolve_defend(game: &mut Game) -> Result<()> {
     };
 
     let msgs = game.defend(&indices)?;
-    for m in msgs {
-        println!("  {m}");
-    }
+    print_event_lines(msgs);
     Ok(())
 }
 
@@ -134,6 +135,7 @@ pub(super) fn ask_next_player(game: &Game) -> Result<usize> {
     if game.is_solo() {
         return Ok(0);
     }
+    blank();
     println!("  Choose who goes next:");
     for (i, p) in game.players.iter().enumerate() {
         println!("    {}) {} ({} cards)", i + 1, p.name, p.hand.len());

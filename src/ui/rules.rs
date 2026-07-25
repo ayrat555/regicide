@@ -1,7 +1,9 @@
+use super::fmt::{self, blank, double_rule, pad_center};
+
 pub fn print_help_full() {
+    blank();
     println!(
-        r#"
-COMMANDS
+        r#"COMMANDS
   play (p) 1        Play card #1
   play (p) 1 3      Play animal companion + card, or a combo
   1 3               Shorthand for play
@@ -18,12 +20,12 @@ COMMANDS
 }
 
 pub fn print_rules() {
+    blank();
+    double_rule();
+    println!("{}", pad_center("REGICIDE RULES", fmt::LINE_WIDTH));
+    double_rule();
     println!(
         r#"
-════════════════════════════════════════
-              REGICIDE RULES
-════════════════════════════════════════
-
 AIM
   Work together to defeat 12 enemies: 4 Jacks,
   then 4 Queens, then 4 Kings. Win by killing

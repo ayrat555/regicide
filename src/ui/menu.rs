@@ -1,10 +1,11 @@
+use super::fmt::{self, blank};
 use super::input::{pause, read_line};
 use super::rules::print_rules;
 use super::session::{play_loop, SessionEnd};
 use crate::game::Game;
 use crate::save;
 use anyhow::Result;
-use colored::Colorize;
+use colored::{Color, Colorize};
 use rand::rngs::StdRng;
 use rand::SeedableRng;
 use std::io::{self, Write};
@@ -12,28 +13,20 @@ use std::path::Path;
 
 pub fn run() -> Result<()> {
     let save_path = save::default_save_path();
-    println!();
-    println!("{}", "╔══════════════════════════════════╗".bright_yellow());
-    println!(
-        "{}{}{}",
-        "║".bright_yellow(),
-        "          R E G I C I D E         ".bold().bright_red(),
-        "║".bright_yellow()
+    blank();
+    fmt::banner(
+        "R E G I C I D E",
+        Some("cooperative card battler"),
+        Color::BrightYellow,
+        Color::BrightRed,
     );
+    blank();
     println!(
-        "{}{}{}",
-        "║".bright_yellow(),
-        "     cooperative card battler     ".bright_black(),
-        "║".bright_yellow()
-    );
-    println!("{}", "╚══════════════════════════════════╝".bright_yellow());
-    println!();
-    println!(
-        "{} {}",
+        "  {} {}",
         "Save file:".bright_black(),
         save_path.display().to_string().cyan()
     );
-    println!();
+    blank();
 
     loop {
         println!("  {} New solo game", "1)".cyan().bold());
@@ -49,7 +42,8 @@ pub fn run() -> Result<()> {
         }
         println!("  {} Rules {}", "4)".cyan().bold(), "(r)".bright_black());
         println!("  {} Quit {}", "5)".cyan().bold(), "(q)".bright_black());
-        print!("\n{} ", ">".bright_yellow().bold());
+        blank();
+        print!("{} ", ">".bright_yellow().bold());
         io::stdout().flush()?;
 
         match read_line()?.trim() {
@@ -61,11 +55,12 @@ pub fn run() -> Result<()> {
                 }
             }
             "2" => {
-                print!("Players (2–4): ");
+                print!("  Players (2–4): ");
                 io::stdout().flush()?;
                 let n: usize = read_line()?.trim().parse().unwrap_or(0);
                 if !(2..=4).contains(&n) {
-                    println!("Invalid player count.\n");
+                    println!("  Invalid player count.");
+                    blank();
                     continue;
                 }
                 let mut rng = StdRng::from_os_rng();
@@ -76,24 +71,31 @@ pub fn run() -> Result<()> {
             }
             "3" => {
                 if !save::save_exists(&save_path) {
-                    println!("No save file found.\n");
+                    println!("  No save file found.");
+                    blank();
                     continue;
                 }
                 let game = save::load_game(&save_path)?;
-                println!("Loaded saved game.\n");
+                println!("  Loaded saved game.");
+                blank();
                 if start_session(game, &save_path)? {
                     return Ok(());
                 }
             }
             "4" | "r" | "rules" => {
                 print_rules();
+                fmt::thin_rule();
                 pause()?;
             }
             "5" | "q" | "quit" => {
-                println!("Farewell, regicide.");
+                blank();
+                println!("  Farewell, regicide.");
                 return Ok(());
             }
-            _ => println!("Unknown option.\n"),
+            _ => {
+                println!("  Unknown option.");
+                blank();
+            }
         }
     }
 }
@@ -101,9 +103,11 @@ pub fn run() -> Result<()> {
 /// Runs a play session. Returns `true` if the app should exit.
 fn start_session(game: Game, save_path: &Path) -> Result<bool> {
     if play_loop(game, save_path)? == SessionEnd::QuitApp {
-        println!("Farewell, regicide.");
+        blank();
+        println!("  Farewell, regicide.");
         Ok(true)
     } else {
+        blank();
         Ok(false)
     }
 }

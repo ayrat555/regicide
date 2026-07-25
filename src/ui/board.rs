@@ -1,10 +1,11 @@
+use super::fmt::{self, blank, hrule};
 use crate::card::{render_enemy, render_hand, Suit};
 use crate::game::Game;
 use colored::Colorize;
 
 pub fn print_board(game: &Game) {
-    println!();
-    println!("{}", "━".repeat(44).bright_black());
+    blank();
+    hrule();
     println!(
         "{} {}  {}  {} {}  {}  {} {}  {}  {} {}",
         "Turn".bright_black(),
@@ -34,7 +35,7 @@ pub fn print_board(game: &Game) {
             game.solo_jesters_used.to_string().bright_black()
         );
     }
-    println!();
+    blank();
 
     if let Some(enemy) = game.enemy {
         println!("{}", "  ENEMY".bold().bright_yellow());
@@ -74,7 +75,10 @@ pub fn print_board(game: &Game) {
         println!("{}", "  No enemy.".bright_black());
     }
 
-    println!();
+    blank();
+    fmt::thin_rule();
+    blank();
+
     if game.num_players() > 1 {
         for (i, p) in game.players.iter().enumerate() {
             if i == game.current_player {
@@ -92,7 +96,7 @@ pub fn print_board(game: &Game) {
                 );
             }
         }
-        println!();
+        blank();
     }
 
     if game.is_solo() {
@@ -106,7 +110,8 @@ pub fn print_board(game: &Game) {
         );
     }
     println!("{}", render_hand(&game.current().hand));
-    println!("{}", "━".repeat(44).bright_black());
+    hrule();
+    blank();
 }
 
 pub fn print_help_brief(game: &Game) {
